@@ -37,7 +37,6 @@
             color: transparent;
         }
         
-        /* IMPROVEMENT: Added text-base to prevent auto-zoom on iOS when inputs are focused. */
         .input-glass {
             background: rgba(15, 23, 42, 0.5);
             border: 1px solid var(--glass-border);
@@ -45,7 +44,7 @@
             border-radius: 0.5rem;
             transition: all 0.2s ease-in-out;
             padding: 0.75rem 1rem;
-            font-size: 1rem; /* Equivalent to text-base */
+            font-size: 1rem;
         }
         .input-glass:focus {
             outline: none;
@@ -57,7 +56,6 @@
             cursor: not-allowed;
         }
 
-        /* IMPROVEMENT: Added touch-action for better mobile tap responsiveness */
         .main-tab-btn {
             padding: 0.5rem 1.5rem;
             border-radius: 9999px;
@@ -106,7 +104,7 @@
         .lab-value-card {
             background: var(--glass-bg-card);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             border-radius: 0.75rem;
             overflow: hidden;
@@ -165,7 +163,7 @@
             <div class="flex justify-center mb-8">
                 <div class="inline-flex rounded-full card-glass p-1 space-x-1">
                     <button id="tab-reference" class="main-tab-btn active">Reference</button>
-                    <button id="tab-interpreter" class="main-tab-btn">AI Interpreter</button>
+                    <button id="tab-interpreter" class="main-tab-btn">Interpreter</button>
                 </div>
             </div>
 
@@ -173,10 +171,7 @@
                 <div id="referenceContent">
                     <div class="max-w-xl mx-auto mb-8">
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-text-accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
-                            </div>
-                            <input type="search" id="labSearchInput" placeholder="Search lab tests (e.g., Sodium)..." class="input-glass block w-full pl-12 pr-4 py-3 border rounded-full shadow-lg text-base">
+                            <input type="search" id="labSearchInput" placeholder="Search lab tests (e.g., Sodium)..." class="input-glass block w-full pl-4 pr-4 py-3 border rounded-full shadow-lg text-base">
                         </div>
                     </div>
                     
@@ -187,15 +182,15 @@
 
                     <main id="labValuesHost" class="max-w-7xl mx-auto space-y-8"></main>
                      <div id="no-lab-results" class="text-center p-10 hidden">
-                         <h2 class="text-2xl font-bold text-text-secondary">No lab values found</h2>
-                         <p class="text-text-accent mt-2">Try adjusting your search terms.</p>
+                          <h2 class="text-2xl font-bold text-text-secondary">No lab values found</h2>
+                          <p class="text-text-accent mt-2">Try adjusting your search terms.</p>
                      </div>
                 </div>
 
                 <div id="interpreterContent" class="hidden">
                     <div class="max-w-3xl mx-auto card-glass p-6 sm:p-8 rounded-lg">
-                        <h2 class="text-2xl font-bold text-text-primary mb-1">AI-Powered Interpretation</h2>
-                        <p class="text-text-accent mb-6">Select a test, enter the patient's value, and get an instant analysis.</p>
+                        <h2 class="text-2xl font-bold text-text-primary mb-1">Lab Value Interpreter</h2>
+                        <p class="text-text-accent mb-6">Select a test, enter the value, and check it against the reference range.</p>
                         <div class="space-y-6">
                             <div class="relative">
                                 <label for="interpreterTestInput" class="block text-sm font-medium text-text-secondary mb-2">Lab Test</label>
@@ -209,7 +204,7 @@
                                     <span id="interpreterUnits" class="input-glass bg-slate-800/60 rounded-l-none border-l-0 whitespace-nowrap px-4">Select a test first</span>
                                 </div>
                             </div>
-                            <button id="interpretButton" class="w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Interpret with AI</button>
+                            <button id="interpretButton" class="w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Interpret</button>
                         </div>
                         <div id="interpretationResult" class="mt-8 border-t border-glass-border pt-6 hidden"></div>
                     </div>
@@ -468,14 +463,13 @@ const allLabValuesData = [
             });
         }
         
-        // IMPROVEMENT: Using Intersection Observer for better performance than a scroll event listener.
         function setupCategoryObserver() {
             const sections = document.querySelectorAll('#labValuesHost section');
             const buttons = document.querySelectorAll('.category-filter-btn');
 
             const observerOptions = {
-                root: null, // observes intersections relative to the viewport
-                rootMargin: '-120px 0px -50% 0px', // Trigger when a section is in the upper part of the screen
+                root: null,
+                rootMargin: '-120px 0px -50% 0px',
                 threshold: 0
             };
 
@@ -505,7 +499,6 @@ const allLabValuesData = [
                 const categoryId = `lab-category-${category.title.replace(/[^a-zA-Z0-9]/g, '-')}`;
                 const categorySection = document.createElement('section');
                 categorySection.id = categoryId;
-                // IMPROVEMENT: scroll-mt adds a margin when an element is scrolled to, preventing it from being hidden under the sticky header.
                 categorySection.className = 'mb-12 scroll-mt-24';
 
                 const categoryTitleEl = document.createElement('h2');
@@ -551,7 +544,6 @@ const allLabValuesData = [
                 categorySection.appendChild(valuesContainer);
                 labValuesHost.appendChild(categorySection);
             });
-            // Re-initialize the observer after rendering new content
             setupCategoryObserver();
         }
 
@@ -610,7 +602,7 @@ const allLabValuesData = [
             autocompleteContainer.classList.add('hidden');
         }
 
-        async function handleInterpretation() {
+        function handleInterpretation() {
             if (!selectedInterpreterTest) return;
             const patientValue = parseFloat(interpreterValueInput.value);
             if (isNaN(patientValue)) {
@@ -620,11 +612,9 @@ const allLabValuesData = [
             }
             
             interpretButton.disabled = true;
-            interpretButton.innerHTML = `<div class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Analyzing...</div>`;
             interpretationResult.classList.remove('hidden');
             interpretationResult.innerHTML = '';
             
-            // IMPROVEMENT: More robust range parsing for various formats like "<100", ">45", "10-20".
             const rangeStr = selectedInterpreterTest.conventionalUnits;
             let status = 'Normal';
             let statusClass = 'text-green-400';
@@ -640,93 +630,42 @@ const allLabValuesData = [
                     else if (patientValue > numbers[1]) { status = 'High'; statusClass = 'text-red-400'; }
                 }
             }
-
-
-            try {
-                const aiResponseText = await getAiInterpretation(selectedInterpreterTest, patientValue, status);
-                const etiology = status === 'High' ? selectedInterpreterTest.etiology.high : (status === 'Low' ? selectedInterpreterTest.etiology.low : '');
-                interpretationResult.innerHTML = `
-                    <div class="flex justify-between items-start mb-4 flex-wrap gap-2">
-                        <div><h3 class="text-xl font-bold">${selectedInterpreterTest.test}</h3><p class="text-text-secondary">Range: ${selectedInterpreterTest.conventionalUnits}</p></div>
-                        <div class="text-right flex-shrink-0"><p class="text-2xl font-bold ${statusClass}">${status.toUpperCase()}</p><p class="font-semibold">${patientValue} ${interpreterUnits.textContent}</p></div>
-                    </div>
-                    <div class="space-y-6">
-                        ${etiology ? `<div class="p-4 rounded-lg bg-slate-800/50 border border-glass-border"><h4 class="font-bold mb-2">Possible Causes (${status})</h4><p class="text-sm">${etiology}</p></div>` : ''}
-                        <div class="p-4 rounded-lg bg-gradient-to-br from-blue-accent/10 to-purple-accent/10 border border-glass-border">
-                             <h4 class="font-bold mb-2 flex items-center gap-2">🤖 AI Deep Dive</h4>
-                             <div class="text-sm space-y-2 prose prose-invert prose-sm max-w-none">${aiResponseText.replace(/\n/g, '<br>')}</div>
-                             <p class="text-xs text-text-accent mt-4 italic">Powered by Gemini. For educational purposes only. Not for clinical use.</p>
-                        </div>
-                    </div>`;
-            } catch (error) {
-                console.error("AI Interpretation Error:", error);
-                interpretationResult.innerHTML = `<div class="text-red-400 text-center p-4 bg-red-900/20 rounded-lg"><h4 class="font-bold">Error Fetching AI Interpretation</h4><p class="text-sm mt-1">${error.message}</p></div>`;
-            } finally {
-                interpretButton.disabled = false;
-                interpretButton.innerHTML = 'Interpret with AI';
-            }
-        }
-
-        async function getAiInterpretation(test, value, status) {
-            // --- SECURITY WARNING ---
-            // NEVER expose your API key in client-side code like this in a real application.
-            // This is a major security risk. In a production environment, this API call
-            // should be made from a server-side backend that keeps the key secret.
-            // The key is left blank here for you to add locally for testing.
-            const apiKey = ""; // Left blank for environment injection
-            if (!apiKey) {
-                 throw new Error("API Key is missing. Please add it to the script for local testing.");
-            }
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
             
-            const prompt = `You are a clinical decision support assistant for healthcare students. Provide a brief and structured educational analysis of the following lab result.
-- Test: ${test.test}
-- Patient's Value: ${value} ${test.conventionalUnits.match(/[a-zA-Z/%³µ]+(\/[a-zA-Z]+)?/)?.[0] || ''}
-- Reference Range: ${test.conventionalUnits}
-- Finding: The value is ${status}.
-- Potential causes for a ${status} value are: ${status === 'High' ? test.etiology.high : test.etiology.low || 'Not specified'}.
-
-Provide a "Deep Dive" using markdown for bolding. Structure the response with these four numbered sections:
-1. **What This Test Measures:** Briefly explain what this test indicates in the body.
-2. **Clinical Significance of a ${status} Result:** Explain what a ${status} value generally implies clinically.
-3. **Differential Considerations:** Based *only* on the potential causes provided, briefly list some conditions to consider. Frame this as educational possibilities, not a diagnosis.
-4. **Next Steps & Considerations:** Suggest general next steps a student or clinician might consider (e.g., "correlate with patient history," "consider follow-up tests like...").
-
-Keep the language professional, concise, and educational. Do not diagnose the patient. Do not use markdown headers (#).`;
-
-            const payload = { 
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-                generationConfig: {
-                    temperature: 0.4,
-                    topP: 1,
-                    topK: 32,
-                    maxOutputTokens: 512,
-                }
-            };
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                 const errorBody = await response.json();
-                 console.error("API Error Response:", errorBody);
-                 throw new Error(`API request failed: ${errorBody.error?.message || response.statusText}`);
+            const etiologyText = status === 'High' ? selectedInterpreterTest.etiology.high : (status === 'Low' ? selectedInterpreterTest.etiology.low : '');
+    
+            let etiologyHtml = '';
+            if (etiologyText) {
+                etiologyHtml = `
+                    <div class="p-4 rounded-lg bg-slate-800/50 border border-glass-border mt-6">
+                        <h4 class="font-bold mb-2 text-lg">Possible Etiology for a ${status} Result</h4>
+                        <p class="text-sm text-text-secondary">${etiologyText}</p>
+                    </div>
+                `;
+            } else if (status !== 'Normal') {
+                etiologyHtml = `
+                    <div class="p-4 rounded-lg bg-slate-800/50 border border-glass-border mt-6">
+                        <h4 class="font-bold mb-2 text-lg">Possible Etiology for a ${status} Result</h4>
+                        <p class="text-sm text-text-secondary">No specific etiology listed for this finding.</p>
+                    </div>
+                `;
             }
 
-            const result = await response.json();
-            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
-                return result.candidates[0].content.parts[0].text;
-            } else {
-                console.error("Invalid API response structure:", result);
-                if (result.promptFeedback) {
-                    throw new Error(`Content blocked by API safety settings: ${result.promptFeedback.blockReason}`);
-                }
-                throw new Error("Invalid or empty response structure from API.");
-            }
+            interpretationResult.innerHTML = `
+                <div class="flex justify-between items-start mb-4 flex-wrap gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold">${selectedInterpreterTest.test}</h3>
+                        <p class="text-text-secondary">Reference Range: ${selectedInterpreterTest.conventionalUnits}</p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-2xl font-bold ${statusClass}">${status.toUpperCase()}</p>
+                        <p class="font-semibold">${patientValue} ${interpreterUnits.textContent}</p>
+                    </div>
+                </div>
+                ${etiologyHtml}
+                <p class="text-xs text-text-accent mt-4 italic">Always correlate with clinical findings.</p>
+            `;
+
+            interpretButton.disabled = false;
         }
 
         // --- Initial Load ---
