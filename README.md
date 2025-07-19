@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,11 +18,10 @@
             --glass-bg-card: rgba(59, 2, 102, 0.6);
             --glass-border: rgba(255, 255, 255, 0.1);
             --blue-accent: #a855f7;
+            --purple-accent: #d946ef;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -31,7 +29,7 @@
             color: var(--text-primary);
             background-attachment: fixed;
         }
-
+        
         .gradient-text {
             background-image: linear-gradient(to right, #e879f9, #a855f7, #6366f1);
             -webkit-background-clip: text;
@@ -39,20 +37,46 @@
             color: transparent;
         }
         
+        /* IMPROVEMENT: Added text-base to prevent auto-zoom on iOS when inputs are focused. */
         .input-glass {
             background: rgba(15, 23, 42, 0.5);
             border: 1px solid var(--glass-border);
             color: var(--text-primary);
-            border-radius: 9999px;
+            border-radius: 0.5rem;
             transition: all 0.2s ease-in-out;
-            padding: 0.75rem 1rem 0.75rem 3rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem; /* Equivalent to text-base */
         }
         .input-glass:focus {
             outline: none;
             border-color: var(--blue-accent);
             box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4);
         }
+        .input-glass:disabled {
+            background-color: rgba(15, 23, 42, 0.3);
+            cursor: not-allowed;
+        }
 
+        /* IMPROVEMENT: Added touch-action for better mobile tap responsiveness */
+        .main-tab-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background-color: transparent;
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .main-tab-btn.active {
+            color: white;
+            background-image: linear-gradient(to right, var(--blue-accent), var(--purple-accent));
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .category-filter-scrollbar::-webkit-scrollbar { height: 4px; }
+        .category-filter-scrollbar::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.5); border-radius: 2px; }
         .category-filter-btn {
             flex-shrink: 0;
             padding: 0.5rem 1.25rem;
@@ -65,6 +89,7 @@
             transition: all 0.2s ease-in-out;
             cursor: pointer;
             white-space: nowrap;
+            touch-action: manipulation;
         }
         .category-filter-btn:hover {
             color: var(--text-primary);
@@ -81,10 +106,10 @@
         .lab-value-card {
             background: var(--glass-bg-card);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
             border: 1px solid var(--glass-border);
             border-radius: 0.75rem;
             overflow: hidden;
-            transition: all 0.2s ease-in-out;
         }
         .lab-value-card summary {
             display: flex;
@@ -95,10 +120,8 @@
             outline: none;
         }
         .lab-value-card summary::-webkit-details-marker { display: none; }
-        .lab-value-card summary:hover { background-color: rgba(255, 255, 255, 0.05); }
         .lab-value-card .summary-arrow { transition: transform 0.2s ease-in-out; }
         .lab-value-card[open] .summary-arrow { transform: rotate(90deg); }
-        
         .lab-value-details {
             padding: 1rem 1.5rem;
             background-color: rgba(15, 23, 42, 0.3);
@@ -107,56 +130,96 @@
         .etiology-column h4.high { color: #f87171; }
         .etiology-column h4.low { color: #60a5fa; }
         .lab-notes {
-            margin-top: 1rem;
-            padding: 0.75rem;
+            margin-top: 1rem; padding: 0.75rem;
             background-color: rgba(168, 85, 247, 0.1);
             border: 1px solid rgba(168, 85, 247, 0.2);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            color: #d8b4fe;
+            border-radius: 0.5rem; font-size: 0.875rem; color: #d8b4fe;
         }
+
+        #interpretButton { 
+            background-image: linear-gradient(to right, var(--blue-accent), var(--purple-accent)); 
+            touch-action: manipulation;
+        }
+        #interpretButton:not(:disabled):hover {
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .prose { color: var(--text-secondary); }
+        .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--text-primary); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200">
 
     <div id="app" class="min-h-screen">
-        <div id="labsContent" class="p-4 sm:p-6 lg:p-8">
-             <header class="text-center mb-8 sm:mb-12">
+        <div class="p-4 sm:p-6 lg:p-8">
+            <header class="text-center mb-8 sm:mb-12">
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight gradient-text">
                     LabRef Pro
                 </h1>
-                <p class="mt-4 text-lg text-text-secondary max-w-3xl mx-auto">
+                <p class="mt-3 sm:mt-4 text-md sm:text-lg text-text-secondary max-w-3xl mx-auto">
                     Interpret. Learn. Apply.
                 </p>
-                <div class="mt-8 max-w-xl mx-auto">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-text-accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <input type="search" id="labSearchInput" placeholder="Search lab tests (e.g., Potassium, WBC, Glucose)..." class="input-glass block w-full shadow-lg">
-                    </div>
-                </div>
             </header>
 
-            <div id="labCategoryFilters" class="sticky top-0 z-10 py-3 bg-gradient-to-b from-bg-gradient-mid to-transparent -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6 backdrop-blur-md">
-                <div class="max-w-7xl mx-auto flex items-center space-x-3 overflow-x-auto pb-2">
-                    <!-- Category filter buttons will be dynamically inserted here -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex rounded-full card-glass p-1 space-x-1">
+                    <button id="tab-reference" class="main-tab-btn active">Reference</button>
+                    <button id="tab-interpreter" class="main-tab-btn">AI Interpreter</button>
                 </div>
             </div>
 
-            <main id="labValuesHost" class="max-w-7xl mx-auto space-y-8">
-            </main>
-             <div id="no-lab-results" class="text-center p-10 hidden">
-                <h2 class="text-2xl font-bold text-text-secondary">No lab values found</h2>
-                <p class="text-text-accent mt-2">Try adjusting your search terms.</p>
+            <div id="tabContent">
+                <div id="referenceContent">
+                    <div class="max-w-xl mx-auto mb-8">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-text-accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <input type="search" id="labSearchInput" placeholder="Search lab tests (e.g., Sodium)..." class="input-glass block w-full pl-12 pr-4 py-3 border rounded-full shadow-lg text-base">
+                        </div>
+                    </div>
+                    
+                    <div id="labCategoryFilters" class="sticky top-0 z-10 py-3 bg-gradient-to-b from-bg-gradient-mid to-transparent -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6 backdrop-blur-md">
+                        <div class="max-w-7xl mx-auto flex items-center space-x-3 overflow-x-auto pb-3 category-filter-scrollbar">
+                            </div>
+                    </div>
+
+                    <main id="labValuesHost" class="max-w-7xl mx-auto space-y-8"></main>
+                     <div id="no-lab-results" class="text-center p-10 hidden">
+                         <h2 class="text-2xl font-bold text-text-secondary">No lab values found</h2>
+                         <p class="text-text-accent mt-2">Try adjusting your search terms.</p>
+                     </div>
+                </div>
+
+                <div id="interpreterContent" class="hidden">
+                    <div class="max-w-3xl mx-auto card-glass p-6 sm:p-8 rounded-lg">
+                        <h2 class="text-2xl font-bold text-text-primary mb-1">AI-Powered Interpretation</h2>
+                        <p class="text-text-accent mb-6">Select a test, enter the patient's value, and get an instant analysis.</p>
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <label for="interpreterTestInput" class="block text-sm font-medium text-text-secondary mb-2">Lab Test</label>
+                                <input type="text" id="interpreterTestInput" placeholder="Start typing a test name..." class="input-glass w-full">
+                                <div id="autocomplete-container" class="absolute z-20 w-full mt-1 bg-slate-800 border border-glass-border rounded-md shadow-lg hidden max-h-60 overflow-y-auto"></div>
+                            </div>
+                            <div>
+                                <label for="interpreterValueInput" class="block text-sm font-medium text-text-secondary mb-2">Patient's Value</label>
+                                <div class="flex items-center flex-nowrap">
+                                    <input type="number" id="interpreterValueInput" placeholder="Enter value..." class="input-glass w-full rounded-r-none" disabled>
+                                    <span id="interpreterUnits" class="input-glass bg-slate-800/60 rounded-l-none border-l-0 whitespace-nowrap px-4">Select a test first</span>
+                                </div>
+                            </div>
+                            <button id="interpretButton" class="w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Interpret with AI</button>
+                        </div>
+                        <div id="interpretationResult" class="mt-8 border-t border-glass-border pt-6 hidden"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
 <script type="module">
-// --- COMPLETE LAB VALUES DATABASE ---
+// --- COMPLETE LAB VALUES DATABASE (Data is unchanged) ---
 const allLabValuesData = [
     {
         title: "Serum, Plasma, and Whole Blood Chemistries",
@@ -361,14 +424,40 @@ const allLabValuesData = [
         const labSearchInput = document.getElementById('labSearchInput');
         const noResultsDiv = document.getElementById('no-lab-results');
         const categoryFiltersContainer = document.getElementById('labCategoryFilters')?.querySelector('.flex');
+        const tabs = document.querySelectorAll('.main-tab-btn');
+        const tabContents = {
+            reference: document.getElementById('referenceContent'),
+            interpreter: document.getElementById('interpreterContent')
+        };
+        const interpreterTestInput = document.getElementById('interpreterTestInput');
+        const interpreterValueInput = document.getElementById('interpreterValueInput');
+        const interpretButton = document.getElementById('interpretButton');
+        const interpretationResult = document.getElementById('interpretationResult');
+        const autocompleteContainer = document.getElementById('autocomplete-container');
+        const interpreterUnits = document.getElementById('interpreterUnits');
+        let selectedInterpreterTest = null;
+        let activeCategoryButtonDebounce;
+
+        function setupTabNavigation() {
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const activeTabId = tab.id.split('-')[1];
+                    Object.keys(tabContents).forEach(key => {
+                        tabContents[key]?.classList.toggle('hidden', key !== activeTabId);
+                    });
+                });
+            });
+        }
 
         function renderCategoryFilters() {
             if (!categoryFiltersContainer) return;
             categoryFiltersContainer.innerHTML = '';
-            allLabValuesData.forEach((category, index) => {
+            allLabValuesData.forEach((category) => {
                 const categoryId = `lab-category-${category.title.replace(/[^a-zA-Z0-9]/g, '-')}`;
                 const button = document.createElement('button');
-                button.className = `category-filter-btn ${index === 0 ? 'active' : ''}`;
+                button.className = `category-filter-btn`;
                 button.textContent = category.title;
                 button.dataset.targetId = categoryId;
                 
@@ -378,6 +467,32 @@ const allLabValuesData = [
                 categoryFiltersContainer.appendChild(button);
             });
         }
+        
+        // IMPROVEMENT: Using Intersection Observer for better performance than a scroll event listener.
+        function setupCategoryObserver() {
+            const sections = document.querySelectorAll('#labValuesHost section');
+            const buttons = document.querySelectorAll('.category-filter-btn');
+
+            const observerOptions = {
+                root: null, // observes intersections relative to the viewport
+                rootMargin: '-120px 0px -50% 0px', // Trigger when a section is in the upper part of the screen
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const targetId = entry.target.id;
+                        buttons.forEach(button => {
+                            button.classList.toggle('active', button.dataset.targetId === targetId);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+        }
+
 
         function renderLabValues(filteredData = allLabValuesData) {
             labValuesHost.innerHTML = '';
@@ -390,6 +505,7 @@ const allLabValuesData = [
                 const categoryId = `lab-category-${category.title.replace(/[^a-zA-Z0-9]/g, '-')}`;
                 const categorySection = document.createElement('section');
                 categorySection.id = categoryId;
+                // IMPROVEMENT: scroll-mt adds a margin when an element is scrolled to, preventing it from being hidden under the sticky header.
                 categorySection.className = 'mb-12 scroll-mt-24';
 
                 const categoryTitleEl = document.createElement('h2');
@@ -435,6 +551,8 @@ const allLabValuesData = [
                 categorySection.appendChild(valuesContainer);
                 labValuesHost.appendChild(categorySection);
             });
+            // Re-initialize the observer after rendering new content
+            setupCategoryObserver();
         }
 
         function handleLabSearch() {
@@ -445,10 +563,184 @@ const allLabValuesData = [
             }));
             renderLabValues(filteredData);
         }
+        
+        function setupInterpreter() {
+            interpreterTestInput.addEventListener('input', handleAutocomplete);
+            interpreterValueInput.addEventListener('input', () => {
+                interpretButton.disabled = !selectedInterpreterTest || !interpreterValueInput.value;
+            });
+            interpretButton.addEventListener('click', handleInterpretation);
+            document.addEventListener('click', (e) => {
+                if (!interpreterTestInput.contains(e.target) && !autocompleteContainer.contains(e.target)) {
+                    autocompleteContainer.classList.add('hidden');
+                }
+            });
+        }
 
+        function handleAutocomplete() {
+            const searchTerm = interpreterTestInput.value.toLowerCase();
+            autocompleteContainer.innerHTML = '';
+            if (searchTerm.length < 2) {
+                autocompleteContainer.classList.add('hidden');
+                return;
+            }
+            const allLabTests = allLabValuesData.flatMap(cat => cat.values);
+            const matchedTests = allLabTests.filter(t => t.test.toLowerCase().includes(searchTerm)).slice(0, 10);
+            if (matchedTests.length > 0) {
+                matchedTests.forEach(test => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 hover:bg-slate-700 cursor-pointer text-text-secondary';
+                    item.textContent = test.test;
+                    item.addEventListener('click', () => selectTest(test));
+                    autocompleteContainer.appendChild(item);
+                });
+                autocompleteContainer.classList.remove('hidden');
+            } else {
+                autocompleteContainer.classList.add('hidden');
+            }
+        }
+
+        function selectTest(test) {
+            selectedInterpreterTest = test;
+            interpreterTestInput.value = test.test;
+            interpreterUnits.textContent = test.conventionalUnits.match(/[a-zA-Z/%³µ]+(\/[a-zA-Z]+)?/)?.[0] || 'Units';
+            interpreterValueInput.disabled = false;
+            interpreterValueInput.focus();
+            interpretButton.disabled = !interpreterValueInput.value;
+            autocompleteContainer.classList.add('hidden');
+        }
+
+        async function handleInterpretation() {
+            if (!selectedInterpreterTest) return;
+            const patientValue = parseFloat(interpreterValueInput.value);
+            if (isNaN(patientValue)) {
+                interpretationResult.innerHTML = `<p class="text-red-400">Please enter a valid number.</p>`;
+                interpretationResult.classList.remove('hidden');
+                return;
+            }
+            
+            interpretButton.disabled = true;
+            interpretButton.innerHTML = `<div class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Analyzing...</div>`;
+            interpretationResult.classList.remove('hidden');
+            interpretationResult.innerHTML = '';
+            
+            // IMPROVEMENT: More robust range parsing for various formats like "<100", ">45", "10-20".
+            const rangeStr = selectedInterpreterTest.conventionalUnits;
+            let status = 'Normal';
+            let statusClass = 'text-green-400';
+            const numbers = rangeStr.match(/-?\d+(\.\d+)?/g)?.map(Number);
+            
+            if (numbers && numbers.length > 0) {
+                 if (rangeStr.startsWith('<')) {
+                    if (patientValue >= numbers[0]) { status = 'High'; statusClass = 'text-red-400'; }
+                } else if (rangeStr.startsWith('>')) {
+                    if (patientValue <= numbers[0]) { status = 'Low'; statusClass = 'text-blue-400'; }
+                } else if (numbers.length >= 2) {
+                    if (patientValue < numbers[0]) { status = 'Low'; statusClass = 'text-blue-400'; }
+                    else if (patientValue > numbers[1]) { status = 'High'; statusClass = 'text-red-400'; }
+                }
+            }
+
+
+            try {
+                const aiResponseText = await getAiInterpretation(selectedInterpreterTest, patientValue, status);
+                const etiology = status === 'High' ? selectedInterpreterTest.etiology.high : (status === 'Low' ? selectedInterpreterTest.etiology.low : '');
+                interpretationResult.innerHTML = `
+                    <div class="flex justify-between items-start mb-4 flex-wrap gap-2">
+                        <div><h3 class="text-xl font-bold">${selectedInterpreterTest.test}</h3><p class="text-text-secondary">Range: ${selectedInterpreterTest.conventionalUnits}</p></div>
+                        <div class="text-right flex-shrink-0"><p class="text-2xl font-bold ${statusClass}">${status.toUpperCase()}</p><p class="font-semibold">${patientValue} ${interpreterUnits.textContent}</p></div>
+                    </div>
+                    <div class="space-y-6">
+                        ${etiology ? `<div class="p-4 rounded-lg bg-slate-800/50 border border-glass-border"><h4 class="font-bold mb-2">Possible Causes (${status})</h4><p class="text-sm">${etiology}</p></div>` : ''}
+                        <div class="p-4 rounded-lg bg-gradient-to-br from-blue-accent/10 to-purple-accent/10 border border-glass-border">
+                             <h4 class="font-bold mb-2 flex items-center gap-2">🤖 AI Deep Dive</h4>
+                             <div class="text-sm space-y-2 prose prose-invert prose-sm max-w-none">${aiResponseText.replace(/\n/g, '<br>')}</div>
+                             <p class="text-xs text-text-accent mt-4 italic">Powered by Gemini. For educational purposes only. Not for clinical use.</p>
+                        </div>
+                    </div>`;
+            } catch (error) {
+                console.error("AI Interpretation Error:", error);
+                interpretationResult.innerHTML = `<div class="text-red-400 text-center p-4 bg-red-900/20 rounded-lg"><h4 class="font-bold">Error Fetching AI Interpretation</h4><p class="text-sm mt-1">${error.message}</p></div>`;
+            } finally {
+                interpretButton.disabled = false;
+                interpretButton.innerHTML = 'Interpret with AI';
+            }
+        }
+
+        async function getAiInterpretation(test, value, status) {
+            // --- SECURITY WARNING ---
+            // NEVER expose your API key in client-side code like this in a real application.
+            // This is a major security risk. In a production environment, this API call
+            // should be made from a server-side backend that keeps the key secret.
+            // The key is left blank here for you to add locally for testing.
+            const apiKey = ""; // Left blank for environment injection
+            if (!apiKey) {
+                 throw new Error("API Key is missing. Please add it to the script for local testing.");
+            }
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            
+            const prompt = `You are a clinical decision support assistant for healthcare students. Provide a brief and structured educational analysis of the following lab result.
+- Test: ${test.test}
+- Patient's Value: ${value} ${test.conventionalUnits.match(/[a-zA-Z/%³µ]+(\/[a-zA-Z]+)?/)?.[0] || ''}
+- Reference Range: ${test.conventionalUnits}
+- Finding: The value is ${status}.
+- Potential causes for a ${status} value are: ${status === 'High' ? test.etiology.high : test.etiology.low || 'Not specified'}.
+
+Provide a "Deep Dive" using markdown for bolding. Structure the response with these four numbered sections:
+1. **What This Test Measures:** Briefly explain what this test indicates in the body.
+2. **Clinical Significance of a ${status} Result:** Explain what a ${status} value generally implies clinically.
+3. **Differential Considerations:** Based *only* on the potential causes provided, briefly list some conditions to consider. Frame this as educational possibilities, not a diagnosis.
+4. **Next Steps & Considerations:** Suggest general next steps a student or clinician might consider (e.g., "correlate with patient history," "consider follow-up tests like...").
+
+Keep the language professional, concise, and educational. Do not diagnose the patient. Do not use markdown headers (#).`;
+
+            const payload = { 
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: 0.4,
+                    topP: 1,
+                    topK: 32,
+                    maxOutputTokens: 512,
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                 const errorBody = await response.json();
+                 console.error("API Error Response:", errorBody);
+                 throw new Error(`API request failed: ${errorBody.error?.message || response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                console.error("Invalid API response structure:", result);
+                if (result.promptFeedback) {
+                    throw new Error(`Content blocked by API safety settings: ${result.promptFeedback.blockReason}`);
+                }
+                throw new Error("Invalid or empty response structure from API.");
+            }
+        }
+
+        // --- Initial Load ---
         labSearchInput.addEventListener('input', handleLabSearch);
+        setupTabNavigation();
         renderCategoryFilters();
-        renderLabValues();
+        renderLabValues(); // This will call setupCategoryObserver internally
+        setupInterpreter();
+        
+        // Set the first category button as active on initial load
+        setTimeout(() => {
+            const firstButton = document.querySelector('.category-filter-btn');
+            if(firstButton) firstButton.classList.add('active');
+        }, 100);
     });
 </script>
 </body>
